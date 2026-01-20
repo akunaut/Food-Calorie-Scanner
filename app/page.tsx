@@ -203,9 +203,9 @@ export default function Home() {
       if (data.error) {
         setResult('Error: ' + data.error)
       } else {
-        setResult(data.result)
-        // Save to history
-        saveToHistory(data.result)
+        // FIX: Use "analysis" instead of "result"
+        setResult(data.analysis)
+        saveToHistory(data.analysis)
       }
     } catch (error) {
       setResult('Could not connect to server')
