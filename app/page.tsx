@@ -27,6 +27,27 @@ export default function Home() {
   const [loadingStep, setLoadingStep] = useState(0)
   const [calorieEntries, setCalorieEntries] = useState<CalorieEntry[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [showCookieBanner, setShowCookieBanner] = useState(false)
+
+  // Check cookie consent on mount
+  useEffect(() => {
+    const consent = localStorage.getItem('cookieConsent')
+    if (!consent) {
+      setShowCookieBanner(true)
+    }
+  }, [])
+
+  // Accept cookies
+  const acceptCookies = () => {
+    localStorage.setItem('cookieConsent', 'accepted')
+    setShowCookieBanner(false)
+  }
+
+  // Decline cookies
+  const declineCookies = () => {
+    localStorage.setItem('cookieConsent', 'declined')
+    setShowCookieBanner(false)
+  }
 
   // Load saved entries on component mount
   useEffect(() => {
@@ -206,7 +227,33 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black p-4">
+      {/* Cookie Consent Banner */}
+      {showCookieBanner && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 shadow-lg z-50">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+              We use cookies for Google AdSense advertising. By continuing to use this site, you consent to our use of cookies. 
+              See our <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={declineCookies}
+                className="px-4 py-2 text-sm bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600"
+              >
+                Decline
+              </button>
+              <button
+                onClick={acceptCookies}
+                className="px-4 py-2 text-sm bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex w-full max-w-2xl flex-col items-center gap-8 py-16 px-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-lg">
         <div className="text-6xl">🍎</div>
         
@@ -217,6 +264,11 @@ export default function Home() {
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
             Upload a photo of food and get calorie information
           </p>
+          
+          {/* Disclaimer */}
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-xs text-yellow-800 dark:text-yellow-200">
+            ⚠️ <strong>Disclaimer:</strong> Estimates only. Not medical advice. Results may be inaccurate.
+          </div>
           
           {/* Today's calories */}
           {calorieEntries.length > 0 && (
@@ -434,6 +486,20 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-8 mb-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="flex gap-4 justify-center">
+          <a href="/privacy" className="hover:text-black dark:hover:text-white hover:underline">
+            Privacy Policy
+          </a>
+          <span>•</span>
+          <a href="/terms" className="hover:text-black dark:hover:text-white hover:underline">
+            Terms of Service
+          </a>
+        </div>
+        <p className="mt-2">© 2026 Food Calorie AI-Scanner. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
