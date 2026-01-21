@@ -1,12 +1,5 @@
 import type { NextConfig } from 'next'
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development'
-})
-
 const nextConfig: NextConfig = {
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
@@ -14,4 +7,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPWA(nextConfig)
+export default nextConfig
