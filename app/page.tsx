@@ -12,11 +12,63 @@ interface CalorieEntry {
   ingredients?: string
 }
 
+// ============================================
+// FOOD BACKGROUND COMPONENT (KONCEPT 3)
+// ============================================
+const FoodBackground = () => {
+  const foodIcons = [
+    { emoji: '🍕', top: '5%', left: '10%', size: '64px', rotation: -15, opacity: 0.15 },
+    { emoji: '🥑', top: '15%', left: '85%', size: '48px', rotation: 25, opacity: 0.2 },
+    { emoji: '🍓', top: '25%', left: '5%', size: '40px', rotation: -30, opacity: 0.25 },
+    { emoji: '🥕', top: '8%', left: '75%', size: '56px', rotation: 45, opacity: 0.18 },
+    { emoji: '🍎', top: '35%', left: '92%', size: '52px', rotation: -20, opacity: 0.22 },
+    { emoji: '🥦', top: '45%', left: '8%', size: '48px', rotation: 35, opacity: 0.2 },
+    { emoji: '🍊', top: '55%', left: '88%', size: '44px', rotation: -25, opacity: 0.18 },
+    { emoji: '🍌', top: '65%', left: '12%', size: '50px', rotation: 15, opacity: 0.2 },
+    { emoji: '🥗', top: '75%', left: '82%', size: '58px', rotation: -35, opacity: 0.16 },
+    { emoji: '🍇', top: '85%', left: '15%', size: '46px', rotation: 20, opacity: 0.22 },
+    { emoji: '🫐', top: '20%', left: '50%', size: '36px', rotation: -40, opacity: 0.15 },
+    { emoji: '🍑', top: '70%', left: '50%', size: '42px', rotation: 30, opacity: 0.18 },
+    { emoji: '🥝', top: '40%', left: '25%', size: '38px', rotation: -15, opacity: 0.2 },
+    { emoji: '🍅', top: '50%', left: '70%', size: '44px', rotation: 25, opacity: 0.17 },
+    { emoji: '🥒', top: '30%', left: '65%', size: '40px', rotation: -45, opacity: 0.19 },
+    { emoji: '🌽', top: '60%', left: '35%', size: '48px', rotation: 15, opacity: 0.21 },
+    { emoji: '🍆', top: '10%', left: '40%', size: '46px', rotation: -30, opacity: 0.16 },
+    { emoji: '🥬', top: '80%', left: '60%', size: '52px', rotation: 35, opacity: 0.18 },
+    { emoji: '🥔', top: '18%', left: '30%', size: '40px', rotation: -20, opacity: 0.2 },
+    { emoji: '🍠', top: '90%', left: '40%', size: '44px', rotation: 25, opacity: 0.17 },
+  ]
+
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {foodIcons.map((icon, index) => (
+        <div
+          key={index}
+          className="absolute select-none"
+          style={{
+            top: icon.top,
+            left: icon.left,
+            fontSize: icon.size,
+            opacity: icon.opacity,
+            transform: `rotate(${icon.rotation}deg)`,
+          }}
+        >
+          {icon.emoji}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
 export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [containerSize, setContainerSize] = useState<string>('')
   const [totalWeight, setTotalWeight] = useState('')
   const [ingredient1Name, setIngredient1Name] = useState('')
   const [ingredient1Weight, setIngredient1Weight] = useState('')
@@ -84,12 +136,17 @@ export default function Home() {
 
   // Extract calories from AI result
   const extractCalories = (text: string): number => {
-    const calorieMatch = text.match(/(\d+)\s*(?:calories|kcal|cal)/i)
+    const calorieMatch = text.match(/🔥\s*CALORIES:\s*(\d+)\s*kcal/i) ||
+                        text.match(/(\d+)\s*(?:calories|kcal|cal)/i)
     return calorieMatch ? parseInt(calorieMatch[1]) : 0
   }
 
   // Extract food description from AI result
   const extractDescription = (text: string): string => {
+    const foodMatch = text.match(/🍽️\s*FOOD:\s*(.+)/i)
+    if (foodMatch) {
+      return foodMatch[1].trim()
+    }
     const lines = text.split('\n')
     const firstLine = lines[0] || text.substring(0, 50)
     return firstLine.replace(/^\d+\)\s*/, '').trim()
@@ -193,6 +250,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           image: selectedImage,
+          containerSize: containerSize || null,
           totalWeight: totalWeight || null,
           ingredients: ingredients.length > 0 ? ingredients : null
         }),
@@ -203,7 +261,6 @@ export default function Home() {
       if (data.error) {
         setResult('Error: ' + data.error)
       } else {
-        // FIX: Use "analysis" instead of "result"
         setResult(data.analysis)
         saveToHistory(data.analysis)
       }
@@ -217,6 +274,7 @@ export default function Home() {
   const clearAll = () => {
     setSelectedImage(null)
     setResult(null)
+    setContainerSize('')
     setTotalWeight('')
     setIngredient1Name('')
     setIngredient1Weight('')
@@ -227,7 +285,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black p-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 dark:from-zinc-900 dark:via-purple-900 dark:to-indigo-900 font-sans p-4 overflow-hidden">
+      
+      {/* Food background */}
+      <FoodBackground />
+
       {/* Cookie Consent Banner */}
       {showCookieBanner && (
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 shadow-lg z-50">
@@ -254,8 +316,8 @@ export default function Home() {
         </div>
       )}
 
-      <main className="flex w-full max-w-2xl flex-col items-center gap-8 py-16 px-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-lg">
-        <div className="text-6xl">🍎</div>
+      <main className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-8 py-16 px-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-2xl shadow-lg">
+        <div className="text-6xl">🍎🍎🍎🍎🍎🍎🍎🍎</div>
         
         <div className="flex flex-col items-center gap-4 text-center">
           <h1 className="text-4xl font-bold text-black dark:text-zinc-50">
@@ -265,9 +327,25 @@ export default function Home() {
             Upload a photo of food and get calorie information
           </p>
           
-          {/* Disclaimer */}
+          {/* UPDATED DISCLAIMER */}
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-xs text-yellow-800 dark:text-yellow-200">
-            ⚠️ <strong>Disclaimer:</strong> Estimates only. Not medical advice. Results may be inaccurate.
+            ⚠️ <strong>Estimates only</strong>
+          </div>
+
+          {/* NEW TIPS BOX */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200 w-full">
+            <div className="flex items-start gap-2">
+              <span className="text-lg">💡</span>
+              <div className="flex-1">
+                <p className="font-semibold mb-2">Tips for better accuracy:</p>
+                <ul className="text-xs space-y-1 list-disc list-inside">
+                  <li>Place a coin (10 kr.) next to your food</li>
+                  <li>Use good lighting</li>
+                  <li>Take photo directly from above</li>
+                  <li>Select container size below</li>
+                </ul>
+              </div>
+            </div>
           </div>
           
           {/* Today's calories */}
@@ -362,90 +440,209 @@ export default function Home() {
               alt="Uploaded food"
               className="max-w-full h-64 object-contain rounded-xl"
             />
-            
-            {/* Weight and ingredients */}
-            <div className="w-full max-w-md space-y-4">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
-                  Detailed analysis (optional)
-                </h3>
-              </div>
-              
-              {/* Total weight */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Total weight (grams)
+
+            {/* NEW CONTAINER SIZE SELECTOR */}
+            {!result && (
+              <div className="w-full max-w-md bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                  📏 What's the food on? (optional)
                 </label>
-                <input
-                  type="number"
-                  value={totalWeight}
-                  onChange={(e) => setTotalWeight(e.target.value)}
-                  placeholder="e.g. 300"
-                  className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white"
-                />
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="small-plate-20cm"
+                      checked={containerSize === 'small-plate-20cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Small plate (20cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="medium-plate-24cm"
+                      checked={containerSize === 'medium-plate-24cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Medium plate (24cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="large-plate-28cm"
+                      checked={containerSize === 'large-plate-28cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Large plate (28cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="small-pan-20cm"
+                      checked={containerSize === 'small-pan-20cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Small pan (20cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="medium-pan-26cm"
+                      checked={containerSize === 'medium-pan-26cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Medium pan (26cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="large-pan-30cm"
+                      checked={containerSize === 'large-pan-30cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Large pan (30cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="bowl-15cm"
+                      checked={containerSize === 'bowl-15cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Bowl (15cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="large-bowl-20cm"
+                      checked={containerSize === 'large-bowl-20cm'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Large bowl (20cm)</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="container"
+                      value="unknown"
+                      checked={containerSize === 'unknown'}
+                      onChange={(e) => setContainerSize(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Don't know</span>
+                  </label>
+                </div>
               </div>
+            )}
+            
+            {/* Weight and ingredients (collapsed by default) */}
+            {!result && (
+              <details className="w-full max-w-md">
+                <summary className="cursor-pointer text-sm text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white">
+                  Advanced: Add weight & ingredients (optional)
+                </summary>
+                <div className="mt-4 space-y-4">
+                  {/* Total weight */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Total weight (grams)
+                    </label>
+                    <input
+                      type="number"
+                      value={totalWeight}
+                      onChange={(e) => setTotalWeight(e.target.value)}
+                      placeholder="e.g. 300"
+                      className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white"
+                    />
+                  </div>
 
-              {/* Ingredients */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Ingredients:
-                </h4>
-                
-                {/* Ingredient 1 */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={ingredient1Name}
-                    onChange={(e) => setIngredient1Name(e.target.value)}
-                    placeholder="e.g. pasta"
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
-                  <input
-                    type="number"
-                    value={ingredient1Weight}
-                    onChange={(e) => setIngredient1Weight(e.target.value)}
-                    placeholder="grams"
-                    className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
-                </div>
+                  {/* Ingredients */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Ingredients:
+                    </h4>
+                    
+                    {/* Ingredient 1 */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ingredient1Name}
+                        onChange={(e) => setIngredient1Name(e.target.value)}
+                        placeholder="e.g. pasta"
+                        className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                      <input
+                        type="number"
+                        value={ingredient1Weight}
+                        onChange={(e) => setIngredient1Weight(e.target.value)}
+                        placeholder="grams"
+                        className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                    </div>
 
-                {/* Ingredient 2 */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={ingredient2Name}
-                    onChange={(e) => setIngredient2Name(e.target.value)}
-                    placeholder="e.g. chicken"
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
-                  <input
-                    type="number"
-                    value={ingredient2Weight}
-                    onChange={(e) => setIngredient2Weight(e.target.value)}
-                    placeholder="grams"
-                    className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
-                </div>
+                    {/* Ingredient 2 */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ingredient2Name}
+                        onChange={(e) => setIngredient2Name(e.target.value)}
+                        placeholder="e.g. chicken"
+                        className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                      <input
+                        type="number"
+                        value={ingredient2Weight}
+                        onChange={(e) => setIngredient2Weight(e.target.value)}
+                        placeholder="grams"
+                        className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                    </div>
 
-                {/* Ingredient 3 */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={ingredient3Name}
-                    onChange={(e) => setIngredient3Name(e.target.value)}
-                    placeholder="e.g. sauce"
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
-                  <input
-                    type="number"
-                    value={ingredient3Weight}
-                    onChange={(e) => setIngredient3Weight(e.target.value)}
-                    placeholder="grams"
-                    className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
-                  />
+                    {/* Ingredient 3 */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ingredient3Name}
+                        onChange={(e) => setIngredient3Name(e.target.value)}
+                        placeholder="e.g. sauce"
+                        className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                      <input
+                        type="number"
+                        value={ingredient3Weight}
+                        onChange={(e) => setIngredient3Weight(e.target.value)}
+                        placeholder="grams"
+                        className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </details>
+            )}
             
             {!result ? (
               <button
@@ -488,7 +685,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-8 mb-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
+      <footer className="relative z-10 mt-8 mb-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
         <div className="flex gap-4 justify-center">
           <a href="/privacy" className="hover:text-black dark:hover:text-white hover:underline">
             Privacy Policy
