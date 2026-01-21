@@ -339,7 +339,7 @@ export default function Home() {
               <div className="flex-1">
                 <p className="font-semibold mb-2">Tips for better accuracy:</p>
                 <ul className="text-xs space-y-1 list-disc list-inside">
-                  <li>Place a coin (10 kr.) next to your food</li>
+                  <li>Place a coin or small object next to your food</li>
                   <li>Use good lighting</li>
                   <li>Take photo directly from above</li>
                   <li>Select container size below</li>
