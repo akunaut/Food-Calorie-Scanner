@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Food Calorie AI-Scanner",
   description: "Upload a photo of food and get calorie information",
-  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
@@ -34,22 +33,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940420031306001"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
-              });
-            }
-          `
-        }} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
