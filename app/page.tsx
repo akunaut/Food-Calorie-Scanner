@@ -317,7 +317,7 @@ export default function Home() {
       )}
 
       <main className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-8 py-16 px-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-2xl shadow-lg">
-        <div className="text-6xl">🍎🍎🍎🍎🍎🍎🍎🍎</div>
+        <div className="text-6xl">🍎🍎🍎</div>
         
         <div className="flex flex-col items-center gap-4 text-center">
           <h1 className="text-4xl font-bold text-black dark:text-zinc-50">
